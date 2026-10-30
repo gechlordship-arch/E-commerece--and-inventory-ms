@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css"; // <-- Make sure this is here!
+import { CartProvider } from "./context/CartContext";
 
 export const metadata: Metadata = {
   title: "E-commerce Inventory App",
@@ -14,7 +15,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <CartProvider>{children}</CartProvider>
+
       </body>
     </html>
   );

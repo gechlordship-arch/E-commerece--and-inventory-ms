@@ -4,22 +4,25 @@ import Link from "next/link";
 
 export default async function NewProductPage() {
   
-  // This is the Server Action that runs when you submit the form
   async function createProduct(formData: FormData) {
     "use server";
 
     const title = formData.get("title") as string;
     const price = parseFloat(formData.get("price") as string);
-    const stock = parseInt(formData.get("stock") as string) || 0; // <-- 1. Grab the stock
+    const stock = parseInt(formData.get("stock") as string) || 0;
     
-    // Get the store we seeded earlier
+    // 1. Safely handle the image URL
+    const rawImageUrl = formData.get("imageUrl") as string;
+    const imageUrl = rawImageUrl && rawImageUrl.trim() !== "" ? rawImageUrl : null;
+    
     const store = await prisma.store.findFirstOrThrow();
 
-    // Create the product, variant, AND inventory
     await prisma.product.create({
       data: {
         title: title,
-        slug: title.toLowerCase().replace(/ /g, '-'), 
+        // 2. Generate a unique slug so it never crashes
+        slug: `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`, 
+        imageUrl: imageUrl,
         storeId: store.id,
         status: "active",
         variants: {
@@ -28,14 +31,13 @@ export default async function NewProductPage() {
             title: "Default",
             priceCents: Math.round(price * 100),
             inventory: {
-              create: { quantity: stock } // <-- 2. Save the stock into the database
+              create: { quantity: stock }
             }
           }
         }
       },
     });
 
-    // Send the user back to the dashboard
     redirect("/admin");
   }
 
@@ -50,43 +52,25 @@ export default async function NewProductPage() {
       <form action={createProduct} className="space-y-4 border p-6 rounded-lg shadow-sm bg-white">
         <div>
           <label className="block text-sm font-medium mb-1">Product Title</label>
-          <input 
-            type="text" 
-            name="title" 
-            required 
-            className="w-full border p-2 rounded"
-            placeholder="e.g. Cool Hoodie"
-          />
+          <input type="text" name="title" required className="w-full border p-2 rounded" />
         </div>
         
         <div>
           <label className="block text-sm font-medium mb-1">Price ($)</label>
-          <input 
-            type="number" 
-            name="price" 
-            step="0.01" 
-            required 
-            className="w-full border p-2 rounded"
-            placeholder="e.g. 49.99"
-          />
+          <input type="number" name="price" step="0.01" required className="w-full border p-2 rounded" />
         </div>
 
-        {/* 3. Add the new input field to the UI */}
         <div>
           <label className="block text-sm font-medium mb-1">Initial Stock</label>
-          <input 
-            type="number" 
-            name="stock" 
-            required 
-            defaultValue="0"
-            className="w-full border p-2 rounded"
-          />
+          <input type="number" name="stock" required defaultValue="0" className="w-full border p-2 rounded" />
         </div>
 
-        <button 
-          type="submit" 
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 font-medium"
-        >
+        <div>
+          <label className="block text-sm font-medium mb-1">Image URL (Optional)</label>
+          <input type="url" name="imageUrl" className="w-full border p-2 rounded" placeholder="https://..." />
+        </div>
+
+        <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 font-medium">
           Save Product
         </button>
       </form>
