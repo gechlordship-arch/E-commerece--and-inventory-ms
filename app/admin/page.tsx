@@ -1,3 +1,4 @@
+import { logout } from "../actions/auth";
 import { Suspense } from "react";
 import Link from "next/link";
 import ProductList from "./ProductList";
@@ -20,6 +21,12 @@ export default function AdminPage() {
         >
           + Add New Product
         </Link>
+
+         <form action={logout}>
+            <button type="submit" className="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 font-medium">
+              Logout
+            </button>
+          </form>
       </div>
 
       <Suspense fallback={<div className="p-4 border rounded-lg bg-gray-50 text-gray-500">Loading products...</div>}>
