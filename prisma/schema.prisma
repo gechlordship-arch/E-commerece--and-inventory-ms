@@ -41,7 +41,7 @@ model Variant {
   createdAt  DateTime @default(now())
   
   inventory  Inventory? // <-- Add this line
-
+  orderItems OrderItem[] // <-- Add this line
   @@index([productId])
 }
 
@@ -52,4 +52,24 @@ model Inventory {
   variant   Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade)
   quantity  Int      @default(0)
   updatedAt DateTime @updatedAt
+}
+model Order {
+  id            String      @id @default(cuid())
+  customerName  String
+  customerEmail String
+  address       String
+  totalCents    Int
+  status        String      @default("pending")
+  createdAt     DateTime    @default(now())
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId  String
+  variant    Variant  @relation(fields: [variantId], references: [id])
+  quantity   Int
+  priceCents Int
 }

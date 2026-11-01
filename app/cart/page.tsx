@@ -48,9 +48,12 @@ export default function CartPage() {
           <button onClick={clearCart} className="text-gray-500 hover:text-black underline text-sm">
             Clear Cart
           </button>
-          <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700">
+           <Link 
+            href="/cart/checkout" 
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700"
+          >
             Proceed to Checkout
-          </button>
+          </Link>
         </div>
       </div>
     </div>
